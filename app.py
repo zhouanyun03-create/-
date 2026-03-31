@@ -5,47 +5,40 @@ from datetime import datetime
 # 1. 頁面設定
 st.set_page_config(page_title="BUNNY'S 船藝備考 APP", page_icon="🐰", layout="wide")
 
-# 2. 絕對置中與講義區塊 CSS
+# 2. 絕對置中與講義區塊 CSS (還原截圖視覺)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
     html, body, [data-testid="stAppViewContainer"] { background-color: #FFFDF5 !important; font-family: 'Noto Sans TC', sans-serif !important; }
     #MainMenu, footer, header { visibility: hidden !important; }
-    .block-container { max-width: 500px; padding: 1rem !important; margin: 0 auto; }
+    .block-container { max-width: 500px; padding: 1.5rem !important; margin: 0 auto; }
     
-    /* 統測倒數 */
     .exam-countdown { background: #FFB7C5; color: white; border-radius: 20px; padding: 12px; text-align: center; margin-bottom: 20px; font-weight: 700; }
-    
-    /* 講義內容大區塊 (灰色背景) */
-    .note-box { 
-        background-color: #F2F2F2; border-radius: 20px; padding: 25px; 
-        color: #333333; line-height: 1.8; margin-bottom: 20px; 
-        font-size: 1.1rem; min-height: 350px;
-        border-left: 10px solid #FF9A9E;
-    }
+    .note-box { background-color: #F2F2F2; border-radius: 20px; padding: 25px; color: #333333; line-height: 1.8; margin-bottom: 20px; font-size: 1.1rem; border-left: 10px solid #FF9A9E; min-height: 350px; }
     .note-header { font-size: 1.3rem; font-weight: 900; color: #5C3D2E; margin-bottom: 15px; }
 
-    /* 按鈕絕對置中樣式 */
+    /* 按鈕與選項文字絕對置中 */
     div.stButton > button {
         width: 100% !important; border-radius: 25px !important;
         padding: 15px !important; font-size: 1.1rem !important;
         background: white !important; border: 1px solid #EEEEEE !important;
         color: #5C3D2E !important; font-weight: 800 !important;
-        text-align: center !important; 
         display: flex !important; justify-content: center !important; align-items: center !important;
+        text-align: center !important;
         margin-bottom: 12px !important;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05) !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 3. 統測倒數 (2026/04/25)
+# 3. 統測倒數 (靜態顯示 24 天)
 days_left = (datetime(2026, 4, 25) - datetime.now()).days
 
-# 4. 資料載入 (精確使用截圖中的 GID)
-SHEET_ID = "1XIZqBYkHlt2INxq_M3yt6I4iKmzdKVblgpSafcLsk4"
-URL_Q = f"https://docs.google.com/spreadsheets/d/e/{SHEET_ID}/pub?gid=1898620995&output=csv"
-URL_N = f"https://docs.google.com/spreadsheets/d/e/{SHEET_ID}/pub?gid=1830807869&output=csv"
+# 4. 資料載入 (精確使用妳提供的連結與截圖 gid)
+# 這裡使用妳發佈的連結作為基底
+BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgUbGiwR1M1_BooQnDEPJjU2gm1sFLD3RKpz-da2Hhrj8-PNj09lGQJkdFmuG-3UvGOCZD1yg6LtNu/pub?output=csv"
+URL_Q = f"{BASE_URL}&gid=1898620995" # Questions 分頁
+URL_N = f"{BASE_URL}&gid=1830807869" # Notes 分頁
 
 @st.cache_data(ttl=10)
 def load_csv(url):
@@ -57,10 +50,10 @@ try:
     df_questions = load_csv(URL_Q)
     df_notes = load_csv(URL_N)
 except:
-    st.error("🐰 資料載入失敗！請確認試算表已『發佈到網路』為 CSV 格式。")
+    st.error("🐰 資料載入失敗！請確認試算表『發佈到網路』為 CSV 格式。")
     st.stop()
 
-# 5. Session State
+# 5. 狀態管理
 if "mode" not in st.session_state: st.session_state.mode = "HOME"
 if "note_page" not in st.session_state: st.session_state.note_page = 0
 
@@ -81,6 +74,7 @@ if st.session_state.mode == "HOME":
     
     if st.button("✍️ 隨機模擬測驗"):
         st.session_state.mode = "QUIZ"
+        # 隨機抓5題
         st.session_state.quiz_pool = df_questions[df_questions["章節"] == st.session_state.chapter].sample(n=min(5, len(df_questions))).reset_index(drop=True)
         st.session_state.quiz_idx = 0
         st.rerun()
@@ -106,7 +100,7 @@ elif st.session_state.mode == "STUDY":
     </div>
     """, unsafe_allow_html=True)
     
-    if pd.notna(row['圖片連結']):
+    if pd.notna(row['圖片連結']) and str(row['圖片連結']).startswith('http'):
         st.image(row['圖片連結'], use_column_width=True)
 
     col1, col2 = st.columns(2)
@@ -122,9 +116,3 @@ elif st.session_state.mode == "STUDY":
     if st.button("🏠 返回首頁"):
         st.session_state.mode = "HOME"
         st.rerun()
-
-# ✍️ QUIZ：隨機測驗模式
-elif st.session_state.mode == "QUIZ":
-    # 這裡可以沿用妳之前的刷題邏輯，重點是按鈕已透過 CSS 強制置中
-    st.write("測驗模式進行中...")
-    if st.button("🏠 回首頁"): st.session_state.mode = "HOME"; st.rerun()
