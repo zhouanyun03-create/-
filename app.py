@@ -1,11 +1,12 @@
 import streamlit as st
 import pandas as pd
+import time
 from datetime import datetime
 
-# 1. 頁面基本設定
+# 1. 頁面設定 (設定正確標題)
 st.set_page_config(page_title="BUNNY'S 船藝備考 APP", page_icon="🐰", layout="wide")
 
-# 2. 專業 App 視覺 CSS：解決選項置中、講義區塊樣式
+# 2. 強大 CSS：確保標題、選項按鈕文字絕對置中，並還原妳要的手機 App 感
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
@@ -14,7 +15,7 @@ st.markdown("""
         font-family: 'Noto Sans TC', sans-serif !important;
     }
     #MainMenu, footer, header { visibility: hidden !important; }
-    .block-container { max-width: 500px; padding: 1rem !important; margin: 0 auto; }
+    .block-container { max-width: 500px; padding: 1.5rem !important; margin: 0 auto; }
 
     /* 統測倒數看板 */
     .exam-countdown {
@@ -46,11 +47,10 @@ st.markdown("""
 # 3. 統測倒數 (2026/04/25)
 days_left = (datetime(2026, 4, 25) - datetime.now()).days
 
-# 4. 資料載入邏輯
-# 請確保你的試算表已發佈到網路。gid=0 為第一個分頁，gid=XXXX 為指定分頁
+# 4. 資料載入 (智慧讀取分頁)
 SHEET_ID = "2PACX-1vSgUbGiwR1M1_BooQnDEPJjU2gm1sFLD3RKpz-da2Hhrj8-PNj09lGQJkdFmuG-3UvGOCZD1yg6LtNu"
 URL_Q = f"https://docs.google.com/spreadsheets/d/e/{SHEET_ID}/pub?gid=0&output=csv"
-URL_N = f"https://docs.google.com/spreadsheets/d/e/{SHEET_ID}/pub?gid=1506509748&output=csv"
+URL_N = f"https://docs.google.com/spreadsheets/d/e/{SHEET_ID}/pub?gid=12303943&output=csv"
 
 @st.cache_data(ttl=30)
 def load_csv(url):
@@ -62,7 +62,7 @@ try:
     df_questions = load_csv(URL_Q)
     df_notes = load_csv(URL_N)
 except:
-    st.error("🐰 資料載入失敗，請檢查試算表 GID 是否正確且已發佈。")
+    st.error("🐰 資料載入失敗，請確認試算表已發佈到網路且 GID 正確。")
     st.stop()
 
 # 5. Session State 狀態管理
@@ -103,7 +103,7 @@ elif st.session_state.mode == "STUDY":
         st.image(row['講義圖片'])
 
     if st.button("我學會了想換下一個 (進入測驗) ➔"):
-        # 根據 Notes 中的「關卡測驗題號」欄位抓取題目
+        # 根據 Notes 中的題號抓取題目
         target_ids = [int(i.strip()) for i in str(row['關卡測驗題號 (5題)']).split(',')]
         st.session_state.quiz_pool = df_questions[df_questions['題號'].isin(target_ids)].reset_index(drop=True)
         st.session_state.mode = "QUIZ"
