@@ -247,18 +247,16 @@ if st.session_state.mode == "notes":
                 st.session_state.note_idx += 1
                 st.rerun()
 
-        # ── 新增/修改：相關隨堂測驗 (精準對應欄位) ──
+        # ── 新增/修改：相關隨堂測驗 (升級版：顯示選項與加強容錯) ──
         if quiz_df is not None and not quiz_df.empty:
             chap_quiz = quiz_df[quiz_df["章節"].astype(str).str.strip() == str(selected_chapter).strip()]
             title_keyword = str(title).strip()
             
             if title_keyword:
-                # 優先檢查題庫有沒有「關聯重點」這個欄位
                 if "關聯重點" in chap_quiz.columns:
-                    # 精準配對妳設定的標題
-                    rel_quiz = chap_quiz[chap_quiz["關聯重點"].astype(str).str.strip() == title_keyword]
+                    # 使用包含 (contains) 而不是絕對等於，避免因為多一個空白就抓不到
+                    rel_quiz = chap_quiz[chap_quiz["關聯重點"].astype(str).str.contains(title_keyword, regex=False, na=False)]
                 else:
-                    # 如果妳還沒加上這個欄位，就先用舊的關鍵字比對法擋一下
                     rel_quiz = chap_quiz[chap_quiz["題目"].astype(str).str.contains(title_keyword, regex=False, na=False)]
                 
                 if not rel_quiz.empty:
@@ -267,10 +265,23 @@ if st.session_state.mode == "notes":
                     
                     for i, q_row in rel_quiz.iterrows():
                         q_text = q_row.get("題目", "")
+                        o_a = q_row.get("選項A", "")
+                        o_b = q_row.get("選項B", "")
+                        o_c = q_row.get("選項C", "")
+                        o_d = q_row.get("選項D", "")
                         a_text = q_row.get("正確答案", "")
                         exp_text = q_row.get("解析", "無")
+                        if pd.isna(exp_text): exp_text = "無"
                         
-                        st.markdown(f"<div style='background:#F7F5EC; padding:15px; border-radius:10px; margin-bottom:10px; font-weight:bold; color:#2C2C2C;'>Q: {q_text}</div>", unsafe_allow_html=True)
+                        st.markdown(f"""
+                        <div style='background:#F7F5EC; padding:15px; border-radius:10px; margin-bottom:10px; color:#2C2C2C;'>
+                            <div style='font-weight:bold; margin-bottom:8px;'>Q: {q_text}</div>
+                            <div style='font-size:0.9rem; color:#444; margin-bottom:5px;'>(A) {o_a}</div>
+                            <div style='font-size:0.9rem; color:#444; margin-bottom:5px;'>(B) {o_b}</div>
+                            <div style='font-size:0.9rem; color:#444; margin-bottom:5px;'>(C) {o_c}</div>
+                            <div style='font-size:0.9rem; color:#444; margin-bottom:5px;'>(D) {o_d}</div>
+                        </div>
+                        """, unsafe_allow_html=True)
                         with st.expander("👀 點我看解答與解析"):
                             st.markdown(f"<b style='color:#C0003A;'>正確答案：{a_text}</b><br><br><span style='color:#555;'>解析：{exp_text}</span>", unsafe_allow_html=True)
 
