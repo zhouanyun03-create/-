@@ -1,112 +1,456 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+import random
+from datetime import date
 
-# 1. 頁面設定
-st.set_page_config(page_title="BUNNY'S 船藝備考 APP", page_icon="🐰", layout="wide")
+# ── Page Config ──────────────────────────────────────────────────────────────
+st.set_page_config(
+    page_title="🐰 BUNNY'S 船藝備考 APP",
+    page_icon="🐰",
+    layout="centered",
+    initial_sidebar_state="collapsed",
+)
 
-# 2. 視覺修正 (確保字體顏色是深色，不再隱形)
+# ── Global CSS ────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
-    /* 強制背景與字體顏色 */
-    .stApp {
-        background-color: #FFFDF5 !important;
-    }
-    h2, h3, p, span, div {
-        color: #333333 !important; /* 強制所有文字為深灰色 */
-    }
-    
-    /* 標題與倒數 */
-    .app-title { 
-        text-align: center; font-size: 2rem; font-weight: 900; 
-        color: #2C3E50 !important; margin: 20px 0; 
-    }
-    .exam-countdown { 
-        background-color: #FFB7C5 !important; color: white !important; 
-        border-radius: 20px; padding: 15px; text-align: center; 
-        font-weight: 800; margin-bottom: 20px;
-    }
-    
-    /* 講義區塊 */
-    .note-box { 
-        background-color: #F8F9FA !important; border-radius: 20px; 
-        padding: 25px; border-left: 10px solid #FF9A9E; 
-        margin-bottom: 20px; min-height: 200px;
-    }
+/* ---- Reset & Background ---- */
+html, body, [data-testid="stAppViewContainer"] {
+    background-color: #FFFDF5 !important;
+}
+[data-testid="stHeader"], [data-testid="stToolbar"],
+footer, #MainMenu { visibility: hidden !important; display: none !important; }
 
-    /* 按鈕置中樣式 */
-    div.stButton > button {
-        width: 100% !important; border-radius: 30px !important;
-        padding: 15px !important; font-size: 1.1rem !important;
-        background-color: #FFFFFF !important; 
-        color: #5C3D2E !important; border: 2px solid #EEEEEE !important;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.05) !important;
-        margin-bottom: 15px !important;
-        display: block !important;
-    }
+/* ---- Typography base ---- */
+* { font-family: 'Georgia', 'Noto Serif TC', serif; }
+
+/* ---- Countdown banner ---- */
+.countdown-banner {
+    background: linear-gradient(135deg, #FFB6C1 0%, #FF91A4 100%);
+    border-radius: 16px;
+    padding: 14px 24px;
+    text-align: center;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 16px rgba(255,145,164,0.3);
+}
+.countdown-banner p {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #6B0020;
+    letter-spacing: 0.04em;
+}
+.countdown-days {
+    font-size: 2rem !important;
+    color: #C0003A !important;
+}
+
+/* ---- App Title ---- */
+.app-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 900;
+    color: #2C2C2C !important;
+    margin: 0 0 4px 0;
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.08);
+    letter-spacing: 0.02em;
+}
+.app-subtitle {
+    text-align: center;
+    color: #888;
+    font-size: 0.85rem;
+    margin-bottom: 24px;
+}
+
+/* ---- Section label ---- */
+.section-label {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: #555;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+/* ---- Lecture note card ---- */
+.note-card {
+    background: #F0EDE3;
+    border-left: 5px solid #C0003A;
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin: 16px 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+.note-card h3 {
+    color: #C0003A;
+    margin: 0 0 10px 0;
+    font-size: 1.15rem;
+}
+.note-card p {
+    color: #2C2C2C;
+    line-height: 1.85;
+    margin: 0;
+    font-size: 0.97rem;
+    white-space: pre-wrap;
+}
+.note-pager {
+    text-align: center;
+    color: #999;
+    font-size: 0.82rem;
+    margin-top: 8px;
+}
+
+/* ── Buttons: absolute centre via flex ── */
+[data-testid="stButton"] > button {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    width: 100%;
+    border-radius: 10px;
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+    font-size: 0.97rem;
+    padding: 10px 0;
+    transition: all 0.18s ease;
+}
+[data-testid="stButton"] > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+/* ── Quiz card ── */
+.quiz-card {
+    background: #F7F5EC;
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin: 12px 0;
+    border: 1.5px solid #E0D9C8;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.quiz-q {
+    font-size: 1.05rem;
+    font-weight: bold;
+    color: #2C2C2C;
+    margin-bottom: 16px;
+    line-height: 1.7;
+}
+.correct-feedback {
+    background: #D4EDDA;
+    border-left: 5px solid #28A745;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #155724;
+    margin-top: 12px;
+    font-size: 0.93rem;
+}
+.wrong-feedback {
+    background: #F8D7DA;
+    border-left: 5px solid #DC3545;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #721C24;
+    margin-top: 12px;
+    font-size: 0.93rem;
+}
+.explain-box {
+    background: #EAF4FB;
+    border-left: 5px solid #17A2B8;
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: #0C5460;
+    margin-top: 8px;
+    font-size: 0.91rem;
+}
+.score-banner {
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    color: #3B2000;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin: 16px 0;
+    box-shadow: 0 4px 18px rgba(255,165,0,0.35);
+}
+.mode-badge {
+    display: inline-block;
+    background: #FFE0E6;
+    color: #C0003A;
+    border-radius: 20px;
+    padding: 3px 14px;
+    font-size: 0.78rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
 </style>
 """, unsafe_allow_html=True)
 
-# 3. 統測倒數
-days_left = (datetime(2026, 4, 25) - datetime.now()).days
+# ── Data URLs ─────────────────────────────────────────────────────────────────
+BASE = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgUbGiwR1M1_BooQnDEPJjU2gm1sFLD3RKpz-da2Hhrj8-PNj09lGQJkdFmuG-3UvGOCZD1yg6LtNu/pub?output=csv"
+NOTES_URL = BASE + "&gid=1830807869"
+QUIZ_URL  = BASE + "&gid=1898620995"
 
-# 4. 資料載入
-SHEET_ID = "1XIZqBYkHlt2INxq_M3yt6I4iKmzdKVblgpSafcLsk4"
-URL_N = f"https://docs.google.com/spreadsheets/d/e/{SHEET_ID}/pub?gid=1830807869&output=csv"
-
-@st.cache_data(ttl=5)
+@st.cache_data(ttl=300, show_spinner=False)
 def load_notes():
     try:
-        df = pd.read_csv(URL_N)
+        df = pd.read_csv(NOTES_URL)
         df.columns = df.columns.str.strip()
+        df = df.dropna(how="all")
         return df
-    except:
-        return pd.DataFrame()
+    except Exception:
+        return None
 
-df_notes = load_notes()
+@st.cache_data(ttl=300, show_spinner=False)
+def load_quiz():
+    try:
+        df = pd.read_csv(QUIZ_URL)
+        df.columns = df.columns.str.strip()
+        df = df.dropna(how="all")
+        return df
+    except Exception:
+        return None
 
-# 5. 狀態管理
-if "mode" not in st.session_state: st.session_state.mode = "HOME"
-if "note_page" not in st.session_state: st.session_state.note_page = 0
+# ── Countdown ─────────────────────────────────────────────────────────────────
+exam_date = date(2026, 4, 25)
+today     = date.today()
+days_left = (exam_date - today).days
 
-# 🏠 HOME
-if st.session_state.mode == "HOME":
-    st.markdown(f'<div class="exam-countdown">距離 2026 統測還有 {days_left} 天 🐰</div>', unsafe_allow_html=True)
-    st.markdown('<div class="app-title">BUNNY\'S 船藝備考 APP</div>', unsafe_allow_html=True)
-    
-    st.markdown("<div style='text-align:center; margin: 20px 0;'><img src='https://cdn-icons-png.flaticon.com/512/2663/2663067.png' width='100'></div>", unsafe_allow_html=True)
+st.markdown(f"""
+<div class="countdown-banner">
+  <p>📅 距離 2026 統測 (4/25) 還有</p>
+  <p class="countdown-days">⏳ {days_left} 天</p>
+  <p>加油！你一定可以的 🐰💪</p>
+</div>
+""", unsafe_allow_html=True)
 
-    if not df_notes.empty:
-        chapters = sorted(df_notes["章節"].dropna().unique().tolist())
-        if chapters:
-            st.session_state.chapter = st.selectbox("📍 選擇目前複習章節", chapters)
-            if st.button("📖 進入講義複習"):
-                st.session_state.mode = "STUDY"
-                st.session_state.note_page = 0
-                st.rerun()
-        else:
-            st.warning("🐰 講義內容是空的，請在試算表填入資料喔！")
+st.markdown('<p class="app-title">🐰 BUNNY\'S 船藝備考 APP</p>', unsafe_allow_html=True)
+st.markdown('<p class="app-subtitle">統測 · 輪機 · 航海 · 船藝專屬備考工具</p>', unsafe_allow_html=True)
+
+# ── Load Data ─────────────────────────────────────────────────────────────────
+with st.spinner("🐰 兔子搬運資料中..."):
+    notes_df = load_notes()
+    quiz_df  = load_quiz()
+
+if notes_df is None and quiz_df is None:
+    st.error("🐰 兔子搬運資料中，請稍候再試！(資料連線暫時失敗)")
+    st.stop()
+
+# ── Chapter Selector ──────────────────────────────────────────────────────────
+chapters = []
+if notes_df is not None and "章節" in notes_df.columns:
+    chapters = sorted(notes_df["章節"].dropna().unique().tolist())
+
+if not chapters:
+    st.warning("🐰 暫時找不到章節資料，兔子正在努力搬運中...請確認試算表欄位「章節」是否存在！")
+    st.stop()
+
+st.markdown('<p class="section-label">📚 請選擇章節</p>', unsafe_allow_html=True)
+selected_chapter = st.selectbox("", chapters, label_visibility="collapsed")
+
+# ── Mode Selector ─────────────────────────────────────────────────────────────
+col1, col2 = st.columns(2)
+with col1:
+    go_notes = st.button("📖 講義複習", use_container_width=True)
+with col2:
+    go_quiz  = st.button("🎯 隨機模擬測驗 (5題)", use_container_width=True)
+
+# ── Session State Init ─────────────────────────────────────────────────────────
+for key, default in {
+    "mode": None,
+    "note_idx": 0,
+    "quiz_questions": [],
+    "quiz_idx": 0,
+    "answered": False,
+    "chosen": None,
+    "score": 0,
+    "finished": False,
+}.items():
+    if key not in st.session_state:
+        st.session_state[key] = default
+
+if go_notes:
+    st.session_state.mode     = "notes"
+    st.session_state.note_idx = 0
+
+if go_quiz:
+    chapter_quiz = pd.DataFrame()
+    if quiz_df is not None:
+        # Try 章節 column first, then first column
+        if "章節" in quiz_df.columns:
+            chapter_quiz = quiz_df[quiz_df["章節"].astype(str).str.strip() == str(selected_chapter).strip()]
+        if chapter_quiz.empty:
+            chapter_quiz = quiz_df[quiz_df.iloc[:, 0].astype(str).str.strip() == str(selected_chapter).strip()]
+
+    if chapter_quiz.empty:
+        st.warning(f"🐰「{selected_chapter}」目前還沒有題目，兔子努力補充中！")
     else:
-        st.error("🐰 無法連線至試算表，請確認發佈網址正確。")
+        n = min(5, len(chapter_quiz))
+        sampled = chapter_quiz.sample(n=n).reset_index(drop=True)
+        st.session_state.mode           = "quiz"
+        st.session_state.quiz_questions = sampled.to_dict("records")
+        st.session_state.quiz_idx       = 0
+        st.session_state.answered       = False
+        st.session_state.chosen         = None
+        st.session_state.score          = 0
+        st.session_state.finished       = False
 
-# 📖 STUDY
-elif st.session_state.mode == "STUDY":
-    n_df = df_notes[df_notes["章節"] == st.session_state.chapter].reset_index(drop=True)
-    total = len(n_df)
-    cur = st.session_state.note_page
-    
-    row = n_df.iloc[cur]
-    st.write(f"頁碼：{cur + 1} / {total}")
-    st.markdown(f'<div class="note-box"><h3 style="margin-top:0;">📌 {row["重點標題"]}</h3>{row["重點內容"]}</div>', unsafe_allow_html=True)
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("⬅️ 上一頁") and cur > 0:
-            st.session_state.note_page -= 1
+# ══════════════════════════════════════════════════════════════════════════════
+# ── NOTES MODE ───────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+if st.session_state.mode == "notes":
+    chapter_notes = notes_df[notes_df["章節"].astype(str).str.strip() == str(selected_chapter).strip()]
+
+    if chapter_notes.empty:
+        st.info(f"🐰「{selected_chapter}」尚無講義，兔子正在努力整理中！")
+    else:
+        chapter_notes = chapter_notes.reset_index(drop=True)
+        total   = len(chapter_notes)
+        idx     = st.session_state.note_idx
+        idx     = max(0, min(idx, total - 1))
+        row     = chapter_notes.iloc[idx]
+
+        st.markdown('<span class="mode-badge">📖 講義複習模式</span>', unsafe_allow_html=True)
+
+        title   = row.get("重點標題", "")
+        content = row.get("重點內容", "")
+        img_url = row.get("圖片連結", "")
+
+        st.markdown(f"""
+        <div class="note-card">
+            <h3>📌 {title}</h3>
+            <p>{content}</p>
+        </div>
+        <p class="note-pager">第 {idx+1} / {total} 頁　｜　章節：{selected_chapter}</p>
+        """, unsafe_allow_html=True)
+
+        if pd.notna(img_url) and str(img_url).startswith("http"):
+            st.image(str(img_url), use_container_width=True)
+
+        c1, c2, c3 = st.columns([1, 2, 1])
+        with c1:
+            if st.button("⬅️ 上一頁", use_container_width=True, disabled=(idx == 0)):
+                st.session_state.note_idx -= 1
+                st.rerun()
+        with c2:
+            dots = "●" * (idx + 1) + "○" * (total - idx - 1)
+            st.markdown(f"<p style='text-align:center;color:#bbb;font-size:0.8rem;margin-top:10px'>{dots}</p>", unsafe_allow_html=True)
+        with c3:
+            if st.button("下一頁 ➡️", use_container_width=True, disabled=(idx == total - 1)):
+                st.session_state.note_idx += 1
+                st.rerun()
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ── QUIZ MODE ────────────────────────────────────────────────────────────────
+# ══════════════════════════════════════════════════════════════════════════════
+elif st.session_state.mode == "quiz":
+    questions = st.session_state.quiz_questions
+
+    if st.session_state.finished:
+        total_q = len(questions)
+        score   = st.session_state.score
+        pct     = round(score / total_q * 100)
+        emoji   = "🏆" if pct >= 80 else ("🐰" if pct >= 60 else "😅")
+        msg     = "太厲害了！🎉 繼續保持！" if pct >= 80 else ("不錯喔！再複習一下薄弱的地方 💪" if pct >= 60 else "別灰心！再看看講義，一定進步 🌟")
+        st.markdown(f"""
+        <div class="score-banner">
+            {emoji} 測驗結束！<br>
+            得分：{score} / {total_q}　（{pct}%）<br>
+            {msg}
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🔁 再測一次", use_container_width=True):
+            chapter_quiz = pd.DataFrame()
+            if quiz_df is not None:
+                if "章節" in quiz_df.columns:
+                    chapter_quiz = quiz_df[quiz_df["章節"].astype(str).str.strip() == str(selected_chapter).strip()]
+                if chapter_quiz.empty:
+                    chapter_quiz = quiz_df[quiz_df.iloc[:, 0].astype(str).str.strip() == str(selected_chapter).strip()]
+            n = min(5, len(chapter_quiz))
+            sampled = chapter_quiz.sample(n=n).reset_index(drop=True)
+            st.session_state.quiz_questions = sampled.to_dict("records")
+            st.session_state.quiz_idx       = 0
+            st.session_state.answered       = False
+            st.session_state.chosen         = None
+            st.session_state.score          = 0
+            st.session_state.finished       = False
             st.rerun()
-    with col2:
-        if st.button("下一頁 ➡️") and cur < total - 1:
-            st.session_state.note_page += 1
-            st.rerun()
-    if st.button("🏠 返回首頁"): st.session_state.mode = "HOME"; st.rerun()
-        
+    else:
+        q_idx   = st.session_state.quiz_idx
+        row     = questions[q_idx]
+        total_q = len(questions)
+
+        def get_col(row, *candidates):
+            for c in candidates:
+                if c in row and pd.notna(row[c]) and str(row[c]).strip():
+                    return str(row[c]).strip()
+            return ""
+
+        question    = get_col(row, "題目", "question", "Question")
+        opt_a       = get_col(row, "選項A", "A", "a", "option_a")
+        opt_b       = get_col(row, "選項B", "B", "b", "option_b")
+        opt_c       = get_col(row, "選項C", "C", "c", "option_c")
+        opt_d       = get_col(row, "選項D", "D", "d", "option_d")
+        answer      = get_col(row, "答案", "answer", "正確答案", "Answer")
+        explanation = get_col(row, "詳解", "解說", "explanation", "說明", "Explanation")
+
+        options = {}
+        if opt_a: options["A"] = opt_a
+        if opt_b: options["B"] = opt_b
+        if opt_c: options["C"] = opt_c
+        if opt_d: options["D"] = opt_d
+
+        st.markdown(f'<span class="mode-badge">🎯 模擬測驗模式　第 {q_idx+1} / {total_q} 題</span>', unsafe_allow_html=True)
+
+        st.markdown(f"""
+        <div class="quiz-card">
+            <p class="quiz-q">Q{q_idx+1}. {question}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if not st.session_state.answered:
+            for key, text in options.items():
+                if st.button(f"({key}) {text}", key=f"opt_{key}", use_container_width=True):
+                    st.session_state.chosen   = key
+                    st.session_state.answered = True
+                    if key.upper() == answer.strip().upper():
+                        st.session_state.score += 1
+                    st.rerun()
+        else:
+            chosen     = st.session_state.chosen
+            is_correct = chosen.upper() == answer.strip().upper()
+
+            for key, text in options.items():
+                label = f"({key}) {text}"
+                if key.upper() == answer.strip().upper():
+                    st.markdown(f"<div style='background:#D4EDDA;border-radius:8px;padding:9px 14px;margin:4px 0;color:#155724;font-weight:bold;display:flex;justify-content:center;text-align:center'>✅ {label}</div>", unsafe_allow_html=True)
+                elif key == chosen and not is_correct:
+                    st.markdown(f"<div style='background:#F8D7DA;border-radius:8px;padding:9px 14px;margin:4px 0;color:#721C24;font-weight:bold;display:flex;justify-content:center;text-align:center'>❌ {label}</div>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"<div style='background:#F0EDE3;border-radius:8px;padding:9px 14px;margin:4px 0;color:#555;display:flex;justify-content:center;text-align:center'>{label}</div>", unsafe_allow_html=True)
+
+            if is_correct:
+                st.markdown('<div class="correct-feedback">🎉 答對了！太棒了！</div>', unsafe_allow_html=True)
+            else:
+                st.markdown(f'<div class="wrong-feedback">😢 答錯了！正確答案是 <b>({answer})</b></div>', unsafe_allow_html=True)
+
+            if explanation:
+                st.markdown(f'<div class="explain-box">💡 <b>詳解：</b>{explanation}</div>', unsafe_allow_html=True)
+
+            if q_idx + 1 < total_q:
+                if st.button("下一題 ➡️", use_container_width=True):
+                    st.session_state.quiz_idx += 1
+                    st.session_state.answered  = False
+                    st.session_state.chosen    = None
+                    st.rerun()
+            else:
+                if st.button("🏁 查看成績", use_container_width=True):
+                    st.session_state.finished = True
+                    st.rerun()
+
+# ── Footer ────────────────────────────────────────────────────────────────────
+st.markdown("---")
+st.markdown("""
+<p style='text-align:center;color:#BBBBAA;font-size:0.78rem;'>
+🐰 BUNNY'S 備考 APP &nbsp;·&nbsp; 為統測考生量身打造 &nbsp;·&nbsp; 加油！你最棒 🌟
+</p>
+""", unsafe_allow_html=True)
