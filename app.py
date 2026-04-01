@@ -212,30 +212,19 @@ if st.session_state.mode == "notes":
 
         st.markdown('<span class="mode-badge">📖 講義複習模式</span>', unsafe_allow_html=True)
         
-        # 取得各欄位資料
+        # 取得各欄位資料，確切使用 "簡單白話文"
         title   = row.get("重點標題", "")
         content = row.get("重點內容", "")
-        simple  = row.get("簡單白話文版", "")
+        simple  = row.get("簡單白話文", "")
         img_url = row.get("圖片連結", "")
 
-        # 如果有填寫「簡單白話文版」，就生成一個可愛的粉紅小提示框
+        # 消除所有縮排，避免被 Streamlit 判定為程式碼區塊
         simple_html = ""
         if pd.notna(simple) and str(simple).strip():
-            simple_html = f"""
-            <div style="background: #FFF0F5; border-left: 5px solid #FF69B4; border-radius: 8px; padding: 12px 16px; margin-top: 15px;">
-                <b style="color: #C0003A;">💡 兔兔白話文：</b><br>
-                <span style="color: #444; font-size: 0.95rem; line-height: 1.6;">{simple}</span>
-            </div>
-            """
+            simple_html = f'<div style="background: #FFF0F5; border-left: 5px solid #FF69B4; border-radius: 8px; padding: 12px 16px; margin-top: 15px;"><b style="color: #C0003A;">💡 兔兔白話文：</b><br><span style="color: #444; font-size: 0.95rem; line-height: 1.6;">{simple}</span></div>'
 
-        st.markdown(f"""
-        <div class="note-card">
-            <h3>📌 {title}</h3>
-            <p>{content}</p>
-            {simple_html}
-        </div>
-        <p style='text-align:center;color:#999;font-size:0.82rem;'>第 {idx+1} / {total} 頁　｜　章節：{selected_chapter}</p>
-        """, unsafe_allow_html=True)
+        # 將卡片 HTML 也濃縮成一行，避免縮排干擾
+        st.markdown(f'<div class="note-card"><h3 style="color:#C0003A;margin:0 0 10px 0;font-size:1.15rem;">📌 {title}</h3><p style="color:#2C2C2C;line-height:1.85;margin:0;font-size:0.97rem;white-space:pre-wrap;">{content}</p>{simple_html}</div><p style="text-align:center;color:#999;font-size:0.82rem;margin-top:8px;">第 {idx+1} / {total} 頁　｜　章節：{selected_chapter}</p>', unsafe_allow_html=True)
 
         if pd.notna(img_url) and str(img_url).startswith("http"):
             st.image(str(img_url), use_container_width=True)
@@ -348,4 +337,3 @@ elif st.session_state.mode == "quiz":
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown("<p style='text-align:center;color:#BBBBAA;font-size:0.78rem;'>🐰 BUNNY'S 備考 APP · 加油！妳最棒 🌟</p>", unsafe_allow_html=True)
-        
