@@ -97,7 +97,6 @@ BASE_PUB = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgUbGiwR1M1_BooQnDE
 NOTES_URL = f"{BASE_PUB}?gid=1830807869&single=true&output=csv"
 QUIZ_URL  = f"{BASE_PUB}?gid=1898620995&single=true&output=csv"
 
-# ⚠️ 將快取時間拉長到 3600 秒 (1小時)，防止 Google 伺服器新舊資料亂跳
 @st.cache_data(ttl=3600, show_spinner=False)
 def load_notes():
     try:
@@ -207,19 +206,28 @@ if st.session_state.mode == "notes":
     else:
         chapter_notes = chapter_notes.reset_index(drop=True)
         total   = len(chapter_notes)
+        
+        if st.session_state.note_idx >= total:
+            st.session_state.note_idx = 0
+            
+        titles_list = chapter_notes["重點標題"].fillna("未命名重點").astype(str).tolist()
+        jump_title = st.selectbox("⚡ 快速跳轉知識點：", titles_list, index=st.session_state.note_idx)
+        jump_idx = titles_list.index(jump_title)
+        
+        if jump_idx != st.session_state.note_idx:
+            st.session_state.note_idx = jump_idx
+            st.rerun()
+
         idx     = st.session_state.note_idx
-        idx     = max(0, min(idx, total - 1))
         row     = chapter_notes.iloc[idx]
 
         st.markdown('<span class="mode-badge">📖 講義複習模式</span>', unsafe_allow_html=True)
         
-        # 取得各欄位資料，這次保證抓的是 "簡單白話文版"
         title   = row.get("重點標題", "")
         content = row.get("重點內容", "")
         simple  = row.get("簡單白話文版", "")
         img_url = row.get("圖片連結", "")
 
-        # 如果有填寫「簡單白話文版」，就生成一個可愛的粉紅小提示框
         simple_html = ""
         if pd.notna(simple) and str(simple).strip():
             simple_html = f'<div style="background: #FFF0F5; border-left: 5px solid #FF69B4; border-radius: 8px; padding: 12px 16px; margin-top: 15px;"><b style="color: #C0003A;">💡 兔兔白話文：</b><br><span style="color: #444; font-size: 0.95rem; line-height: 1.6;">{simple}</span></div>'
@@ -238,6 +246,33 @@ if st.session_state.mode == "notes":
             if st.button("下一頁 ➡️", use_container_width=True, disabled=(idx == total - 1)):
                 st.session_state.note_idx += 1
                 st.rerun()
+
+        # ── 新增/修改：相關隨堂測驗 (精準對應欄位) ──
+        if quiz_df is not None and not quiz_df.empty:
+            chap_quiz = quiz_df[quiz_df["章節"].astype(str).str.strip() == str(selected_chapter).strip()]
+            title_keyword = str(title).strip()
+            
+            if title_keyword:
+                # 優先檢查題庫有沒有「關聯重點」這個欄位
+                if "關聯重點" in chap_quiz.columns:
+                    # 精準配對妳設定的標題
+                    rel_quiz = chap_quiz[chap_quiz["關聯重點"].astype(str).str.strip() == title_keyword]
+                else:
+                    # 如果妳還沒加上這個欄位，就先用舊的關鍵字比對法擋一下
+                    rel_quiz = chap_quiz[chap_quiz["題目"].astype(str).str.contains(title_keyword, regex=False, na=False)]
+                
+                if not rel_quiz.empty:
+                    st.markdown("<hr style='margin: 30px 0 20px 0;'>", unsafe_allow_html=True)
+                    st.markdown(f'<span class="mode-badge" style="background:#EAF4FB; color:#0C5460;">🎯 相關隨堂測驗 ({len(rel_quiz)}題)</span>', unsafe_allow_html=True)
+                    
+                    for i, q_row in rel_quiz.iterrows():
+                        q_text = q_row.get("題目", "")
+                        a_text = q_row.get("正確答案", "")
+                        exp_text = q_row.get("解析", "無")
+                        
+                        st.markdown(f"<div style='background:#F7F5EC; padding:15px; border-radius:10px; margin-bottom:10px; font-weight:bold; color:#2C2C2C;'>Q: {q_text}</div>", unsafe_allow_html=True)
+                        with st.expander("👀 點我看解答與解析"):
+                            st.markdown(f"<b style='color:#C0003A;'>正確答案：{a_text}</b><br><br><span style='color:#555;'>解析：{exp_text}</span>", unsafe_allow_html=True)
 
 # ── QUIZ MODE ────────────────────────────────────────────────────────────────
 elif st.session_state.mode == "quiz":
