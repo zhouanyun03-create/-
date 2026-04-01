@@ -34,129 +34,69 @@ footer, #MainMenu { visibility: hidden !important; display: none !important; }
     box-shadow: 0 4px 16px rgba(255,145,164,0.3);
 }
 .countdown-banner p {
-    margin: 0;
-    font-size: 1.05rem;
-    font-weight: bold;
-    color: #6B0020;
-    letter-spacing: 0.04em;
+    margin: 0; font-size: 1.05rem; font-weight: bold; color: #6B0020; letter-spacing: 0.04em;
 }
 .countdown-days {
-    font-size: 2rem !important;
-    color: #C0003A !important;
+    font-size: 2rem !important; color: #C0003A !important;
 }
 
 /* ---- App Title ---- */
 .app-title {
-    text-align: center;
-    font-size: 2rem;
-    font-weight: 900;
-    color: #2C2C2C !important;
-    margin: 0 0 4px 0;
-    text-shadow: 1px 1px 0px rgba(0,0,0,0.08);
-    letter-spacing: 0.02em;
+    text-align: center; font-size: 2rem; font-weight: 900;
+    color: #2C2C2C !important; margin: 0 0 4px 0;
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.08); letter-spacing: 0.02em;
 }
 .app-subtitle {
-    text-align: center;
-    color: #888;
-    font-size: 0.85rem;
-    margin-bottom: 24px;
+    text-align: center; color: #888; font-size: 0.85rem; margin-bottom: 24px;
 }
 
 /* ---- Section label ---- */
 .section-label {
-    font-size: 0.9rem;
-    font-weight: bold;
-    color: #555;
-    margin-bottom: 4px;
-    text-align: center;
+    font-size: 0.9rem; font-weight: bold; color: #555;
+    margin-bottom: 4px; text-align: center;
 }
 
 /* ---- Lecture note card ---- */
 .note-card {
-    background: #F0EDE3;
-    border-left: 5px solid #C0003A;
-    border-radius: 12px;
-    padding: 22px 26px;
-    margin: 16px 0;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    background: #F0EDE3; border-left: 5px solid #C0003A; border-radius: 12px;
+    padding: 22px 26px; margin: 16px 0; box-shadow: 0 2px 12px rgba(0,0,0,0.07);
 }
-.note-card h3 {
-    color: #C0003A;
-    margin: 0 0 10px 0;
-    font-size: 1.15rem;
-}
-.note-card p {
-    color: #2C2C2C;
-    line-height: 1.85;
-    margin: 0;
-    font-size: 0.97rem;
-    white-space: pre-wrap;
-}
+.note-card h3 { color: #C0003A; margin: 0 0 10px 0; font-size: 1.15rem; }
+.note-card p { color: #2C2C2C; line-height: 1.85; margin: 0; font-size: 0.97rem; white-space: pre-wrap; }
 
 /* ── Buttons ── */
 [data-testid="stButton"] > button {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-align: center !important;
-    width: 100%;
-    border-radius: 10px;
-    font-weight: bold;
-    font-size: 0.97rem;
-    padding: 10px 0;
-    transition: all 0.18s ease;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+    text-align: center !important; width: 100%; border-radius: 10px; font-weight: bold;
+    font-size: 0.97rem; padding: 10px 0; transition: all 0.18s ease;
 }
 [data-testid="stButton"] > button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.12);
 }
 
 /* ── Quiz card ── */
 .quiz-card {
-    background: #F7F5EC;
-    border-radius: 14px;
-    padding: 22px 26px;
-    margin: 12px 0;
-    border: 1.5px solid #E0D9C8;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    background: #F7F5EC; border-radius: 14px; padding: 22px 26px; margin: 12px 0;
+    border: 1.5px solid #E0D9C8; box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
-.quiz-q {
-    font-size: 1.05rem;
-    font-weight: bold;
-    color: #2C2C2C;
-    margin-bottom: 16px;
-    line-height: 1.7;
-}
+.quiz-q { font-size: 1.05rem; font-weight: bold; color: #2C2C2C; margin-bottom: 16px; line-height: 1.7; }
 .score-banner {
-    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-    border-radius: 16px;
-    padding: 20px;
-    text-align: center;
-    color: #3B2000;
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin: 16px 0;
-    box-shadow: 0 4px 18px rgba(255,165,0,0.35);
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); border-radius: 16px;
+    padding: 20px; text-align: center; color: #3B2000; font-size: 1.2rem;
+    font-weight: bold; margin: 16px 0; box-shadow: 0 4px 18px rgba(255,165,0,0.35);
 }
 .mode-badge {
-    display: inline-block;
-    background: #FFE0E6;
-    color: #C0003A;
-    border-radius: 20px;
-    padding: 3px 14px;
-    font-size: 0.78rem;
-    font-weight: bold;
-    margin-bottom: 10px;
+    display: inline-block; background: #FFE0E6; color: #C0003A; border-radius: 20px;
+    padding: 3px 14px; font-size: 0.78rem; font-weight: bold; margin-bottom: 10px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Data URLs (改用 Google CDN 發佈網址，絕對不會被擋) ────────────────────
+# ── Data URLs ─────────────────────────────────────────────────────────────────
 BASE_PUB = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgUbGiwR1M1_BooQnDEPJjU2gm1sFLD3RKpz-da2Hhrj8-PNj09lGQJkdFmuG-3UvGOCZD1yg6LtNu/pub"
 NOTES_URL = f"{BASE_PUB}?gid=1830807869&single=true&output=csv"
 QUIZ_URL  = f"{BASE_PUB}?gid=1898620995&single=true&output=csv"
 
-# ttl=10 是安全值，避免被 Google 當作機器人封鎖
 @st.cache_data(ttl=10, show_spinner=False)
 def load_notes():
     try:
@@ -193,7 +133,7 @@ st.markdown(f"""
 st.markdown('<p class="app-title">🐰 BUNNY\'S 船藝備考 APP</p>', unsafe_allow_html=True)
 st.markdown('<p class="app-subtitle">統測 · 輪機 · 航海 · 船藝專屬備考工具</p>', unsafe_allow_html=True)
 
-# ── 同步資料按鈕 (放在標題下方，不影響原本版面) ──────────────────────────────
+# ── 同步按鈕 ──────────────────────────────────────────────────────────────────
 if st.button("🔄 同步 Excel 最新資料", use_container_width=True):
     st.cache_data.clear()
     st.toast("🐰 已清空舊記憶，正在抓取最新資料...")
@@ -206,10 +146,8 @@ with st.spinner("🐰 兔子搬運資料中..."):
 
 if notes_df is None or quiz_df is None:
     st.error("🐰 兔子連線被 Google 擋住了！請看下方的真實錯誤原因：")
-    if notes_err:
-        st.code(f"【講義分頁錯誤】: {notes_err}")
-    if quiz_err:
-        st.code(f"【題庫分頁錯誤】: {quiz_err}")
+    if notes_err: st.code(f"【講義分頁錯誤】: {notes_err}")
+    if quiz_err: st.code(f"【題庫分頁錯誤】: {quiz_err}")
     st.stop()
 
 # ── Chapter Selector ──────────────────────────────────────────────────────────
@@ -227,24 +165,12 @@ selected_chapter = st.selectbox("", chapters, label_visibility="collapsed")
 
 # ── Mode Selector ─────────────────────────────────────────────────────────────
 col1, col2 = st.columns(2)
-with col1:
-    go_notes = st.button("📖 講義複習", use_container_width=True)
-with col2:
-    go_quiz  = st.button("🎯 隨機模擬測驗 (5題)", use_container_width=True)
+with col1: go_notes = st.button("📖 講義複習", use_container_width=True)
+with col2: go_quiz  = st.button("🎯 隨機模擬測驗 (5題)", use_container_width=True)
 
 # ── Session State Init ─────────────────────────────────────────────────────────
-for key, default in {
-    "mode": None,
-    "note_idx": 0,
-    "quiz_questions": [],
-    "quiz_idx": 0,
-    "answered": False,
-    "chosen": None,
-    "score": 0,
-    "finished": False,
-}.items():
-    if key not in st.session_state:
-        st.session_state[key] = default
+for key, default in {"mode": None, "note_idx": 0, "quiz_questions": [], "quiz_idx": 0, "answered": False, "chosen": None, "score": 0, "finished": False}.items():
+    if key not in st.session_state: st.session_state[key] = default
 
 if go_notes:
     st.session_state.mode     = "notes"
@@ -263,9 +189,8 @@ if go_quiz:
         st.warning(f"🐰「{selected_chapter}」目前還沒有題目。")
     else:
         n = min(5, len(chapter_quiz))
-        sampled = chapter_quiz.sample(n=n).reset_index(drop=True)
         st.session_state.mode           = "quiz"
-        st.session_state.quiz_questions = sampled.to_dict("records")
+        st.session_state.quiz_questions = chapter_quiz.sample(n=n).reset_index(drop=True).to_dict("records")
         st.session_state.quiz_idx       = 0
         st.session_state.answered       = False
         st.session_state.chosen         = None
@@ -286,16 +211,34 @@ if st.session_state.mode == "notes":
         row     = chapter_notes.iloc[idx]
 
         st.markdown('<span class="mode-badge">📖 講義複習模式</span>', unsafe_allow_html=True)
+        
+        # 取得各欄位資料
+        title   = row.get("重點標題", "")
+        content = row.get("重點內容", "")
+        simple  = row.get("簡單白話文版", "")
+        img_url = row.get("圖片連結", "")
+
+        # 如果有填寫「簡單白話文版」，就生成一個可愛的粉紅小提示框
+        simple_html = ""
+        if pd.notna(simple) and str(simple).strip():
+            simple_html = f"""
+            <div style="background: #FFF0F5; border-left: 5px solid #FF69B4; border-radius: 8px; padding: 12px 16px; margin-top: 15px;">
+                <b style="color: #C0003A;">💡 兔兔白話文：</b><br>
+                <span style="color: #444; font-size: 0.95rem; line-height: 1.6;">{simple}</span>
+            </div>
+            """
+
         st.markdown(f"""
         <div class="note-card">
-            <h3>📌 {row.get("重點標題", "")}</h3>
-            <p>{row.get("重點內容", "")}</p>
+            <h3>📌 {title}</h3>
+            <p>{content}</p>
+            {simple_html}
         </div>
         <p style='text-align:center;color:#999;font-size:0.82rem;'>第 {idx+1} / {total} 頁　｜　章節：{selected_chapter}</p>
         """, unsafe_allow_html=True)
 
-        if pd.notna(row.get("圖片連結")) and str(row.get("圖片連結")).startswith("http"):
-            st.image(str(row["圖片連結"]), use_container_width=True)
+        if pd.notna(img_url) and str(img_url).startswith("http"):
+            st.image(str(img_url), use_container_width=True)
 
         c1, c2, c3 = st.columns([1, 2, 1])
         with c1:
@@ -405,3 +348,4 @@ elif st.session_state.mode == "quiz":
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.markdown("<p style='text-align:center;color:#BBBBAA;font-size:0.78rem;'>🐰 BUNNY'S 備考 APP · 加油！妳最棒 🌟</p>", unsafe_allow_html=True)
+        
