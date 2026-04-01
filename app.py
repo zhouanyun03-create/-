@@ -97,7 +97,8 @@ BASE_PUB = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSgUbGiwR1M1_BooQnDE
 NOTES_URL = f"{BASE_PUB}?gid=1830807869&single=true&output=csv"
 QUIZ_URL  = f"{BASE_PUB}?gid=1898620995&single=true&output=csv"
 
-@st.cache_data(ttl=10, show_spinner=False)
+# ⚠️ 將快取時間拉長到 3600 秒 (1小時)，防止 Google 伺服器新舊資料亂跳
+@st.cache_data(ttl=3600, show_spinner=False)
 def load_notes():
     try:
         df = pd.read_csv(NOTES_URL)
@@ -107,7 +108,7 @@ def load_notes():
     except Exception as e:
         return None, str(e)
 
-@st.cache_data(ttl=10, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False)
 def load_quiz():
     try:
         df = pd.read_csv(QUIZ_URL)
